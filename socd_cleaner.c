@@ -104,7 +104,6 @@ void paint_esc_label(lParam) {
     
 }
 
-
 void write_settings(int* bindings, int disableBind, int esc_bind) {
     FILE* config_file = fopen(CONFIG_NAME, "w");
     if (config_file == NULL) {
@@ -262,8 +261,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     // Are using DirectInput even loops which only respect scancodes events and fully
     // ignores virtual key codes. Source games (Half-Life2, Portal1/2, VTMB)
     // are among notable examples.
-    opposing = MapVirtualKeyW(opposing, MAPVK_VK_TO_VSC_EX);
     
+    //opposing = MapVirtualKeyW(opposing, MAPVK_VK_TO_VSC_EX);;
+
+
     // Holding Alt sends WM_SYSKEYDOWN/WM_SYSKEYUP
     // instead of WM_KEYDOWN/WM_KEYUP, check it as well
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
@@ -271,9 +272,8 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         virtual[index] = IS_DOWN;
         if (real[opposing_index] == IS_DOWN && virtual[opposing_index] == IS_DOWN && disableKeyPressed == IS_UP) {
             input.type = INPUT_KEYBOARD;
-            input.ki = (KEYBDINPUT){0, opposing, KEYEVENTF_KEYUP | KEYEVENTF_SCANCODE, 0, 0};
+            input.ki = (KEYBDINPUT){opposing, 0, KEYEVENTF_KEYUP, 0, 0};
             SendInput(1, &input, sizeof(INPUT));
-            /* printf("Send %d", opposing); */
             virtual[opposing_index] = IS_UP;
         }
     }
@@ -282,9 +282,8 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         virtual[index] = IS_UP;
         if (real[opposing_index] == IS_DOWN && disableKeyPressed == IS_UP) {
             input.type = INPUT_KEYBOARD;
-            input.ki = (KEYBDINPUT){0, opposing, KEYEVENTF_SCANCODE, 0, 0};
+            input.ki = (KEYBDINPUT){opposing, 0, 0, 0, 0};
             SendInput(1, &input, sizeof(INPUT));
-            /* printf("Send %d", opposing); */
             virtual[opposing_index] = IS_DOWN;
         }
     }
